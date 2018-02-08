@@ -4,42 +4,42 @@ var User = require("../models/User");
 
 var userController = {};
 
-//restrict access to root page
+// Restrict access to root page
 userController.home = function(req, res) {
-  res.render('index', {user:req.user });
+  res.render('index', { user : req.user });
 };
 
-//Go to registration page
+// Go to registration page
 userController.register = function(req, res) {
   res.render('register');
 };
 
-//Post registration
+// Post registration
 userController.doRegister = function(req, res) {
-  User.register(new User({ usernmae: req.body.username, name: req.body.name }), req.body.password,
-function (err, user) {
-  if (err) {
-    return res.render('register', { user : user});
-  }
-  passport.authenticate('local')(req, res, function (){
-    res.redirect('/');
+  User.register(new User({ username : req.body.username, name: req.body.name }), req.body.password, function(err, user) {
+    if (err) {
+      return res.render('register', { user : user });
+    }
+
+    passport.authenticate('local')(req, res, function () {
+      res.redirect('/');
+    });
   });
-});
 };
 
-//Go to login page
+// Go to login page
 userController.login = function(req, res) {
   res.render('login');
 };
 
-//post login
-userController.dologin = function(req,res) {
-  passport.authenticate('local')(req, res, function(){
+// Post login
+userController.doLogin = function(req, res) {
+  passport.authenticate('local')(req, res, function () {
     res.redirect('/');
   });
 };
 
-//logout
+// logout
 userController.logout = function(req, res) {
   req.logout();
   res.redirect('/');
