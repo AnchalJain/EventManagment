@@ -7,8 +7,17 @@ var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+var User = require('./models/User');
 
 var app = express();
+var mongoose = require('mongoose');
+
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+mongoose.Promise = global.Promise;
+mongoose.connect('mongodb://localhost/node-auth')
+  .then(() => console.log('connection succesfully'))
+  .catch((err) => console.error(err));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,6 +33,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/users', users);
+
+//initialize passport and express-session
+
+app.use(require('express-session')({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUnintialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -42,5 +62,10 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+//add passport configuration
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 module.exports = app;
